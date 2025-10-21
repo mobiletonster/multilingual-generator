@@ -118,7 +118,7 @@ namespace MultillingualFileGenerator.Targets
                             };
 
                             // Try to translate for new source
-                            var translation = await translator?.Translate(sourceLine.Value);
+                            var translation = await Translate(translator, sourceLine);
                             if (translation != null)
                             {
                                 transUnitElement.Target.Value = translation;
@@ -135,7 +135,7 @@ namespace MultillingualFileGenerator.Targets
                     // Try to translate if state is NEW
                     if (transUnitElement.Target.State == TranslationStates.New)
                     {
-                        var translation = await translator?.Translate(sourceLine.Value);
+                        var translation = await Translate(translator, sourceLine);
                         if (translation != null)
                         {
                             transUnitElement.Target.State = TranslationStates.NeedsReview;
@@ -145,7 +145,7 @@ namespace MultillingualFileGenerator.Targets
                 }
                 else
                 {
-                    var translation = await translator?.Translate(sourceLine.Value);
+                    var translation = await Translate(translator, sourceLine);
                     if (translation == null)
                     {
                         // Add untranslated
@@ -189,6 +189,14 @@ namespace MultillingualFileGenerator.Targets
                 }
             }
             return hasChanges;
+        }
+
+        private async Task<string> Translate(ITranslator translator, SourceLine sourceLine)
+        {
+            if (translator == null)
+                return null;
+
+            return await translator.Translate(sourceLine.Value);
         }
 
         private XliffFile CreateUpdatedXliffFile(SourceInput sourceInput, IndexedList<XliffTransUnitElement> indexedXliffTransUnitElements, Target target)
